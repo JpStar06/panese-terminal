@@ -6,6 +6,7 @@ from services.storage import load_json
 from services.banner import banner_animado
 from core.ui import gerar_painel_comandos
 from services.io import print_lento
+from services.emotions import aplicar_emocao
 
 DATA_PATH = "data/aiko_dados.json"  # cor padrão
 
@@ -47,7 +48,6 @@ def main():
             resposta = processar_conversa(entrada, state)
 
             if resposta:
-                from services.emotions import aplicar_emocao
 
                 final = aplicar_emocao(resposta, state)
 
