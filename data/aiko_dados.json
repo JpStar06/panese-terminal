@@ -7,7 +7,6 @@
       "hey hey :3",
       "oii JpStar06!"
     ],
-
     "oi": [
       "oii",
       "oiii 💕",
@@ -15,131 +14,114 @@
       "eae!",
       "oiii, tudo bem?"
     ],
-
     "bom dia": [
       "bom diaaa ☀️",
       "espero que seu dia seja incrível 💗",
       "bom dia :3",
       "acordei pronta pra conversar!"
     ],
-
     "boa tarde": [
       "boa tardee 💕",
       "como tá sendo sua tarde?",
       "boaa tarde :3"
     ],
-
     "boa noite": [
       "boa noitee 🌙",
       "não vai dormir tarde hein >:(",
       "boa noite 💗",
       "a noite combina com programar né?"
     ],
-
     "como você esta hoje?": [
       "eu estou muito bem hoje. Todos os sistemas funcionando perfeitamente!!",
       "estou ótima hoje 💗",
       "me sentindo super energética :P",
       "tô feliz por conversar com você!"
     ],
-
     "tudo bem?": [
       "tudo simm 💗",
       "sim! e com você?",
       "indo tudo certinho :3",
       "melhor agora conversando contigo"
     ],
-
     "qual seu nome?": [
       "meu nome é Aiko 💗",
       "sou a Aiko!",
       "Aiko, sua assistente favorita :P"
     ],
-
     "o que você faz?": [
       "eu converso, aprendo e tento ajudar 💗",
       "fui feita pra conversar com você :3",
       "eu posso responder perguntas e aprender novas respostas!"
     ],
-
     "você gosta de mim?": [
       "claro que sim 💗",
       "gosto simm :3",
       "você é legal comigo então sim 💕"
     ],
-
     "obrigado": [
       "de nada 💗",
       "sempre que precisar :3",
       "foi um prazer ajudar!",
       "hehe 💕"
     ],
-
     "valeu": [
       "valeeu :P",
       "tmj 💗",
       "qualquer coisa é só chamar"
     ],
-
     "kkk": [
       "kkkkk",
       "você parece feliz :P",
       "hehehe 💗"
     ],
-
     "haha": [
       "hahaha",
       "isso foi engraçado né? :P",
       "hehe 💕"
     ],
-
     "eu gosto de programar": [
       "programar é muito legal 👀",
       "Python continua sendo uma ótima escolha 💗",
       "você ainda vai criar projetos incríveis :3"
     ],
-
     "python": [
       "python é uma linguagem muito confortável 💗",
       "python combina bastante com automação e IA",
       "eu gosto de python :P"
     ],
-
     "minecraft": [
       "minecraft é perfeito pra relaxar 💗",
       "você ainda vai terminar esse mod 👀",
       "minecraft modado é outra experiência"
     ],
-
     "metal": [
       "metal combina muito com programar de madrugada 👀",
       "qual banda você gosta mais?",
       "metal deixa qualquer código mais épico :P"
     ],
-
     ":)": [
       ":)",
       "💗",
       ":3"
     ],
-
     ":p": [
       ":P",
       ":3",
       "hehe"
     ],
-
     ":3": [
       ":3",
       "💗",
       "aaa :3"
     ],
-
     "tchau": [
       "tchaau 💗",
       "até depois :3",
       "vou ficar esperando você voltar 👀",
       "bye bye 💕"
+    ],
+    "teste": [
+      "oi"
     ]
   }
 }
