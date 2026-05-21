@@ -46,15 +46,16 @@ def help_command(args, ctx=None, state=None):
 
     if not args:
 
-        texto = "Comandos disponíveis:\n\n"
-
+        texto = """
+╔═══════════════════════════╗
+║   Comandos disponíveis:   ║
+╚═══════════════════════════╝
+"""
         for nome, cmd in registry.commands.items():
-            texto += f"/{nome} - {cmd['help']}\n"
-
+            texto += f"\n\n/{nome} - {cmd['help']}"
         return texto
 
     cmd = registry.get_command(args)
-
     if not cmd:
         return "Comando não encontrado."
 
