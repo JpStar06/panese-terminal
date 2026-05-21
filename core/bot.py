@@ -3,6 +3,7 @@ from decorators.aiko import aiko_responde
 from datetime import datetime
 from main import DATA_PATH
 from core.state import AikoState
+from core.ui import gerar_painel_ajuda
 
 
 
@@ -57,10 +58,9 @@ def help_command(args, ctx=None, state=None):
     if not cmd:
         return "Comando não encontrado."
 
-    return f"""
-/{cmd['name']}
+    return gerar_painel_ajuda(registry, cmd['name'])
 
-{cmd['help']}
-
-{cmd['details']}
-"""
+@comando("exit", "sair do programa", "Encerra a aplicação")
+@aiko_responde()
+def exit_command(args, ctx=None, state=None):
+    exit()
