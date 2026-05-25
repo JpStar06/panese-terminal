@@ -1,6 +1,5 @@
 #io.py
-from .data import DATA_PATH, DATA_USERS
-from services.storage import load_json, save_usuarios
+from core.memory import load_json, save_usuarios, DATA_USERS
 from services.banner import banner_login, banner_login_principal
 import time
 

@@ -2,14 +2,12 @@
 from core.bot import registry
 from core.state import AikoState
 from core.chat import processar_conversa
-from services.learning import ensinar
-from services.storage import load_json, save_json, save_usuarios
+from core.memory import load_json, save_json, save_usuarios, carregar_dados, ensinar, DATA_PATH, DATA_USERS
 from services.banner import banner_animado
 from core.ui import gerar_painel_comandos
 from services.io import login
 from services.io import print_lento
 from services.emotions import aplicar_emocao
-from services.data import DATA_PATH, DATA_USERS, carregar_dados
 
 import os
 class principal:

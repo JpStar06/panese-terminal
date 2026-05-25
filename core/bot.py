@@ -55,7 +55,7 @@ def help_command(args, ctx=None, state=None):
 """
 
         for nome, cmd in registry.commands.items():
-            texto += f"/{nome} - {cmd['help']}"
+            texto += f"/{nome} - {cmd['help']}\n"
 
         return texto
 
