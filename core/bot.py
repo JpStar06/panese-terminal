@@ -1,11 +1,13 @@
+#import padrão do python
+import sys
+
+#imports de arquivos auxiliares
 from decorators.commands import comando, registry
 from decorators.aiko import aiko_responde
 from datetime import datetime
 from main import DATA_PATH
 from core.state import AikoState
 from core.ui import gerar_painel_ajuda
-
-
 
 @comando("ping", "teste básico", "Responde com 'pong!' para verificar se o chatbot está funcionando")
 @aiko_responde()
@@ -67,4 +69,4 @@ def help_command(args, ctx=None, state=None):
 @comando("exit", "sair do programa", "Encerra a aplicação")
 @aiko_responde()
 def exit_command(args, ctx=None, state=None):
-    exit()
+    sys.exit()
