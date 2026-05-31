@@ -17,6 +17,7 @@ class AikoState:
         self.cor_atual = "\033[35m"
         self.programas = {}
         self.respostas = {}
+        self.nome = "Panese"
 
     # métodos para atualizar o estado emocional e aplicar efeitos nas respostas
     def atualizar_emocao(self, nova_emocao):

@@ -8,7 +8,7 @@ from decorators.commands import registry
 from core.state import AikoState
 from core import bot
 from core.chat import processar_conversa, obter_input, obter_ouput
-from core.memory import load_json, save_json, save_usuario, carregar_dados, ensinar, DATA_PATH, DATA_USERS_DIR
+from core.memory import load_json, save_json, save_usuario, carregar_dados, carregar_usuario, ensinar, DATA_PATH, DATA_USERS_DIR, DATA_USERNAME
 from core.ui import gerar_painel_comandos, banner_animado
 from services.io import login
 from services.io import print_lento
@@ -26,6 +26,7 @@ class principal:
 
         # carregar memória
         dados = load_json(DATA_PATH)
+        usuario = login.usuario
         state.respostas = dados.get("respostas", {})
 
         # 🔥 Banner
@@ -35,7 +36,7 @@ class principal:
         painel = gerar_painel_comandos(registry)
         print_lento(painel, 0.001)
 
-        print(f"{state.cor_atual}Panese:\033[0m Oii JpStar06! Tô pronta pra conversar 💗")
+        print(f"{state.cor_atual}Panese:\033[0m Oii {usuario}! Tô pronta pra conversar 💗")
 
         #iniciar loop de conversa
         while True:

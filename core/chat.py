@@ -5,7 +5,6 @@
 # timeout e para imprimir a resposta com um efeito de digitação, tornando a interação mais fluida e envolvente.
 
 
-import os
 import sys
 import time
 import random

@@ -15,13 +15,15 @@ ultimo_input = time.time()
 
 DATA_PATH = "data/aiko_dados.json"
 DATA_USERS_DIR = "data/users"
-
+DATA_USERNAME = "data/{username}.json"
 # cria pasta automaticamente
 os.makedirs(DATA_USERS_DIR, exist_ok=True)
 
 # Função para obter o caminho do arquivo de um usuário específico
 def get_user_path(username):
     return f"{DATA_USERS_DIR}/{username}.json"
+
+
 
 # Função para carregar um arquivo JSON, retornando um dicionário vazio se o arquivo não existir ou estiver corrompido
 def load_json(path):

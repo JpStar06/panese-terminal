@@ -17,7 +17,7 @@ def aiko_responde(pensar=True):
             state = kwargs.get("state")
             texto = func(*args, **kwargs)
             final = state.aplicar_emocao(texto)  # ✅
-            print(f"{state.cor_atual}Aiko:\033[0m ", end="")
+            print(f"{state.cor_atual}Panese:\033[0m ", end="")
             print_lento(final)
             return final
         return wrapper

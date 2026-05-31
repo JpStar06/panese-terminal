@@ -6,8 +6,6 @@
 import sys
 from decorators.commands import comando, registry
 from decorators.aiko import aiko_responde
-from datetime import datetime
-from main import DATA_PATH
 from core.state import AikoState
 from core.ui import gerar_painel_ajuda
 
