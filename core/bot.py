@@ -1,7 +1,9 @@
-#import padrão do python
-import sys
+#_____________________________________________________________________________________________________________________________________
+#|comandos principais do chatbot, comandos que não podem ser removidos ou editados, como o comando de ajuda, ou comandos relacionados|
+#|a configuração do chatbot. Esses comandos são essenciais para o funcionamento do chatbot e devem estar sempre presentes.           |
+#|___________________________________________________________________________________________________________________________________|
 
-#imports de arquivos auxiliares
+import sys
 from decorators.commands import comando, registry
 from decorators.aiko import aiko_responde
 from datetime import datetime
@@ -9,17 +11,6 @@ from main import DATA_PATH
 from core.state import AikoState
 from core.ui import gerar_painel_ajuda
 
-@comando("ping", "teste básico", "Responde com 'pong!' para verificar se o chatbot está funcionando")
-@aiko_responde()
-def ping(args, ctx=None, state=None):
-    return "pong!"
-
-@comando ("horario", "mostra horário atual", "Exibe o horário atual")
-@aiko_responde()
-def horario(args, ctx=None, state=None):
-    pegar_horario = datetime.now()
-    agora = pegar_horario.strftime("%H:%M")
-    return f"agora são {agora}"
 
 @comando("color", "muda a cor da resposta (ex: /color red)", "Altera a cor do texto da resposta")
 @aiko_responde()
@@ -33,14 +24,15 @@ def color(args, ctx=None, state=None):
         "blue": "\033[34m",
         "magenta": "\033[35m",
         "cyan": "\033[36m",
-        "reset": "\033[0m"
+        "white": "\033[0m"
     }
 
     if cor in cores_validas:
         ctx["state"].cor_atual = cores_validas[cor]
         return f"Cor alterada para {cor}!"
     else:
-        return "Cor inválida. Cores válidas: red, green, yellow, blue, magenta, cyan, reset."
+        return "Cor inválida. Cores válidas: red, green, yellow, blue, magenta, cyan, white."
+
 
 @comando("help", "mostra ajuda", "Exibe esta mensagem de ajuda")
 @aiko_responde()
@@ -65,6 +57,7 @@ def help_command(args, ctx=None, state=None):
         return "Comando não encontrado."
 
     return gerar_painel_ajuda(registry, cmd['name'])
+
 
 @comando("exit", "sair do programa", "Encerra a aplicação")
 @aiko_responde()

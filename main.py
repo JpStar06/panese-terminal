@@ -1,17 +1,27 @@
 #main.py
-from core.bot import registry
+# Ponto de entrada principal para o chatbot, responsável por iniciar a aplicação, carregar os dados necessários e gerenciar o loop de conversa. 
+# Ele utiliza a classe AikoState para manter o estado do chatbot durante a interação com os usuários, e integra os módulos de comandos, memória 
+# e interface do usuário para criar uma experiência de conversa fluida e personalizada. Este arquivo é essencial para orquestrar as diferentes 
+# partes do chatbot e garantir que ele funcione corretamente desde o início até o fim da interação com os usuários.
+
+from decorators.commands import registry
 from core.state import AikoState
-from core.chat import processar_conversa
-from core.memory import load_json, save_json, save_usuarios, carregar_dados, ensinar, DATA_PATH, DATA_USERS
-from services.banner import banner_animado
-from core.ui import gerar_painel_comandos
+from core import bot
+from core.chat import processar_conversa, obter_input, obter_ouput
+from core.memory import load_json, save_json, save_usuario, carregar_dados, ensinar, DATA_PATH, DATA_USERS_DIR
+from core.ui import gerar_painel_comandos, banner_animado
 from services.io import login
 from services.io import print_lento
-from services.emotions import aplicar_emocao
 
+import plugins
+import threading
 import os
+
 class principal:
     def main():
+        #|_____________________________________|
+        #|preparação antes de iniciar o chatbot|
+        #|-------------------------------------|
         state = AikoState()
 
         # carregar memória
@@ -27,12 +37,13 @@ class principal:
 
         print(f"{state.cor_atual}Panese:\033[0m Oii JpStar06! Tô pronta pra conversar 💗")
 
+        #iniciar loop de conversa
         while True:
-            entrada = input("Você: ").strip()
+            entrada = obter_input(state=state, timeout=60)
 
             if not entrada:
                 continue
-
+            #verificar se é comando
             if entrada.startswith("/"):
                 nome, *resto = entrada[1:].split(" ", 1)
                 args = resto[0] if resto else ""
@@ -43,16 +54,13 @@ class principal:
 
                 if not ok:
                     print("Comando não encontrado")
-
+            #se não for comando, processar conversa normal. fturamente colocar separado do loop principal para melhorar organização do código
             else:
                 resposta = processar_conversa(entrada, state)
 
                 if resposta:
 
-                    final = aplicar_emocao(resposta, state)
-
-                    print(f"{state.cor_atual}Panese:\033[0m ", end="")
-                    print_lento(final)
+                    obter_ouput(resposta, state)
 
                 else:
                     print(f"{state.cor_atual}Panese:\033[0m Não entendi...")
@@ -76,4 +84,4 @@ class carregar:
             print_lento("Falha na autenticação. voltando para o menu principal de login.")
             carregar.main()
 if __name__ == "__main__":
-    carregar.main()
+    principal.main()
