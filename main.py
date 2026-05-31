@@ -84,4 +84,4 @@ class carregar:
             print_lento("Falha na autenticação. voltando para o menu principal de login.")
             carregar.main()
 if __name__ == "__main__":
-    principal.main()
+    carregar.main()
