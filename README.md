@@ -1,10 +1,10 @@
-# 🌸 Panese Terminal
+# --{[Panese Terminal]}--
 
 > Pequeno assistente pessoal de terminal com personalidade, memória e emoções.
 
 ---
 
-## 📖 Sobre
+## --{[Sobre]}--
 
 **Panese** (também chamada de **Aiko**) é uma assistente pessoal que roda direto no terminal. Ela aprende com você, reage com emoções e responde de forma personalizada — tudo via linha de comando, sem interface gráfica.
 
@@ -12,7 +12,7 @@ O projeto é escrito inteiramente em **Python** e segue uma arquitetura modular 
 
 ---
 
-## ✨ Funcionalidades
+## --{[Funcionalidades]}--
 
 - 💬 **Conversa natural** — responde perguntas e frases do usuário
 - 🧠 **Aprendizado** — quando não entende algo, pergunta e memoriza a resposta para o futuro
@@ -24,7 +24,7 @@ O projeto é escrito inteiramente em **Python** e segue uma arquitetura modular 
 
 ---
 
-## 📁 Estrutura do Projeto
+## --{[Estrutura do Projeto]}--
 
 ```
 panese-terminal/
@@ -48,13 +48,13 @@ panese-terminal/
 
 ---
 
-## 🚀 Como usar
+## --{[Como usar]}--
 
 ### Pré-requisitos
 
 - Python 3.8+
 
-### Instalação
+### --{Instalação}--
 
 ```bash
 git clone https://github.com/JpStar06/panese-terminal.git
@@ -63,7 +63,7 @@ cd panese-terminal
 
 > Não há dependências externas — o projeto usa apenas a biblioteca padrão do Python.
 
-### Executando
+### --{Executando}--
 
 ```bash
 python main.py
@@ -71,7 +71,7 @@ python main.py
 
 ---
 
-## 🕹️ Interagindo com a Aiko
+## --{[Interagindo com a Aiko]}--
 
 Após iniciar, você verá o banner e o painel de comandos. A partir daí, é só digitar:
 
@@ -97,7 +97,7 @@ Você: /ajuda
 
 ---
 
-## 🗂️ Dados e Memória
+## --{[Dados e Memória]}--
 
 As respostas aprendidas ficam salvas em `data/aiko_dados.json`. Esse arquivo é carregado toda vez que o programa inicia, então a Aiko mantém memória entre sessões.
 
