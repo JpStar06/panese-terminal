@@ -1,4 +1,4 @@
 {
   "username": "JpStar06",
-  "password": "061527"
+  "senha_hash": "pbkdf2_sha256$600000$5db7f91938cdb1b10ba916b48dc8324f$6d63b0ee10b2bf9e187ec0f175be1528dc4b5230e941d8cb897722d8fc727e88"
 }

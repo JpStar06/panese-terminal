@@ -1,88 +1,81 @@
-#main.py
-# Ponto de entrada principal para o chatbot, responsável por iniciar a aplicação, carregar os dados necessários e gerenciar o loop de conversa. 
-# Ele utiliza a classe AikoState para manter o estado do chatbot durante a interação com os usuários, e integra os módulos de comandos, memória 
-# e interface do usuário para criar uma experiência de conversa fluida e personalizada. Este arquivo é essencial para orquestrar as diferentes 
-# partes do chatbot e garantir que ele funcione corretamente desde o início até o fim da interação com os usuários.
+"""Ponto de entrada do Panese Terminal: login, carga da memória e loop de conversa."""
 
-from decorators.commands import registry
+from core import bot  # noqa: F401  (registra os comandos principais)
+import plugins  # noqa: F401  (registra os comandos dos plugins)
+from core.chat import obter_input, processar_conversa, responder
 from core.state import AikoState
-from core import bot
-from core.chat import processar_conversa, obter_input, obter_ouput
-from core.memory import load_json, save_json, save_usuario, carregar_dados, carregar_usuario, ensinar, DATA_PATH, DATA_USERS_DIR, DATA_USERNAME
-from core.ui import gerar_painel_comandos, banner_animado
-from services.io import login
-from services.io import print_lento
-from core.memory import getUserUsername
-import plugins
-import threading
-import os
+from core.ui import gerar_painel_comandos
+from decorators.commands import registry
+from services import auth
+from services.banner import banner_animado
+from services.io import ler_linha, print_lento
+from services.learning import carregar_respostas, ensinar
 
-class principal:
-    def main():
-        #|_____________________________________|
-        #|preparação antes de iniciar o chatbot|
-        #|-------------------------------------|
-        state = AikoState()
 
-        # carregar memória
-        dados = load_json(DATA_PATH)
-        usuario = getUserUsername()
-        state.respostas = dados.get("respostas", {})
+def tratar_comando(entrada, state):
+    nome, _, args = entrada[1:].partition(" ")
+    try:
+        encontrado = registry.execute(nome.lower(), args.strip(), {"state": state})
+    except Exception as erro:  # um comando com bug não derruba o programa
+        print(f"Erro ao executar /{nome}: {erro}")
+        return
+    if not encontrado:
+        print(f"Comando /{nome} não encontrado. Use /help.")
 
-        # 🔥 Banner
-        banner_animado(0.02)
 
-        # 🔥 Painel
-        painel = gerar_painel_comandos(registry)
-        print_lento(painel, 0.001)
+def tratar_conversa(entrada, state):
+    resposta = processar_conversa(entrada, state)
+    if resposta:
+        responder(resposta, state)
+        return
 
-        print(f"{state.cor_atual}Panese:\033[0m Oii {usuario}! Tô pronta pra conversar 💗")
+    cor = state.cor_atual
+    print(f"{cor}Panese:\033[0m Não entendi...")
+    if (ler_linha("Ensinar? (s/n): ") or "").strip().lower() != "s":
+        return
 
-        #iniciar loop de conversa
-        while True:
+    nova = (ler_linha("Resposta: ") or "").strip()
+    if not nova:
+        return
+    try:
+        ensinar(entrada, nova, state)
+    except (ValueError, OSError) as erro:
+        print(f"{cor}Panese:\033[0m Não consegui aprender isso ({erro})")
+    else:
+        print(f"{cor}Panese:\033[0m Aprendi isso 💗")
+
+
+def conversar(usuario):
+    state = AikoState(usuario)
+    state.respostas = carregar_respostas(usuario)
+
+    banner_animado(0.02)
+    print_lento(gerar_painel_comandos(registry), 0.001)
+    print(f"{state.cor_atual}Panese:\033[0m Oii {usuario}! Tô pronta pra conversar 💗")
+
+    while state.rodando:
+        try:
             entrada = obter_input(state=state, timeout=60)
-
             if not entrada:
                 continue
-            #verificar se é comando
             if entrada.startswith("/"):
-                nome, *resto = entrada[1:].split(" ", 1)
-                args = resto[0] if resto else ""
-
-                ok = registry.execute(nome, args, {
-                    "state": state
-                })
-
-                if not ok:
-                    print("Comando não encontrado")
-            #se não for comando, processar conversa normal. fturamente colocar separado do loop principal para melhorar organização do código
+                tratar_comando(entrada, state)
             else:
-                resposta = processar_conversa(entrada, state)
+                tratar_conversa(entrada, state)
+        except (EOFError, KeyboardInterrupt):
+            print()
+            print_lento(f"{state.cor_atual}Panese:\033[0m Até logo! 💗")
+            break
 
-                if resposta:
 
-                    obter_ouput(resposta, state)
+def main():
+    usuario = auth.autenticar()
+    if usuario:
+        conversar(usuario)
 
-                else:
-                    print(f"{state.cor_atual}Panese:\033[0m Não entendi...")
 
-                    aprender = input("Ensinar? (s/n): ").lower()
-
-                    if aprender == "s":
-                        nova = input("Resposta: ").strip()
-
-                        if nova:
-                            ensinar(entrada, nova, state, DATA_PATH)
-                            print(f"{state.cor_atual}Panese: \033[0mAprendi isso 💗")
-
-class carregar:
-    def main():
-        carregar_dados()
-        autorizar = login.principal_login()
-        if autorizar:
-            principal.main()
-        else:
-            print_lento("Falha na autenticação. voltando para o menu principal de login.")
-            carregar.main()
 if __name__ == "__main__":
-    carregar.main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print()

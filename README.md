@@ -6,140 +6,133 @@
 
 ## --{[Sobre]}--
 
-**Panese** (também chamada de **Aiko**) é uma assistente pessoal que roda direto no terminal. Ela aprende com você, reage com emoções e responde de forma personalizada — tudo via linha de comando, sem interface gráfica.
+**Panese** (também chamada de **Aiko**) é uma assistente pessoal que roda direto no terminal. Ela aprende com você, reage com emoções e responde de forma personalizada, tudo por linha de comando.
 
-O projeto é escrito inteiramente em **Python** e segue uma arquitetura modular com separação entre núcleo, serviços e decoradores.
+Escrita só com a biblioteca padrão do Python, com arquitetura modular (núcleo, serviços, decoradores e plugins).
 
 ---
 
 ## --{[Funcionalidades]}--
 
-- 💬 **Conversa natural** — responde perguntas e frases do usuário
-- 🧠 **Aprendizado** — quando não entende algo, pergunta e memoriza a resposta para o futuro
-- 💗 **Emoções** — aplica estados emocionais nas respostas para deixá-las mais expressivas
-- 🎨 **Cores personalizáveis** — interface colorida no terminal via ANSI
-- ⌨️ **Comandos com `/`** — sistema de comandos registrados acessíveis com barra
-- 📦 **Persistência de dados** — salva e carrega memória de um arquivo JSON
-- 🎬 **Banner animado** — tela de boas-vindas animada ao iniciar
-
----
-
-## --{[Estrutura do Projeto]}--
-
-```
-panese-terminal/
-├── main.py              # Ponto de entrada principal
-├── core/
-│   ├── bot.py           # Registro e execução de comandos
-│   ├── chat.py          # Processamento da conversa
-│   ├── state.py         # Estado global da Aiko (AikoState)
-│   └── ui.py            # Geração do painel de comandos
-├── services/
-│   ├── banner.py        # Banner animado de boas-vindas
-│   ├── emotions.py      # Sistema de emoções
-│   ├── io.py            # Saída lenta (print_lento)
-│   ├── learning.py      # Lógica de aprendizado
-│   └── storage.py       # Leitura/escrita de JSON
-├── decorators/          # Decoradores auxiliares
-├── data/
-│   └── aiko_dados.json  # Memória persistida da Aiko
-└── README.md
-```
+- 💬 **Conversa** — encontra a resposta mais parecida (ignora maiúsculas, acentos e pontuação; tolera pequenos erros de digitação)
+- 🧠 **Aprendizado** — quando não entende, pergunta e memoriza a resposta **na memória do seu usuário**
+- 💗 **Emoções** — modos de personalidade que mudam o jeito de responder (`/modo`)
+- 🔐 **Contas** — login com senha protegida por hash (PBKDF2) e memória separada por usuário
+- 🎨 **Cores** — interface colorida via ANSI (`/color`)
+- ⌨️ **Comandos com `/`** — registrados por decorador; plugins na pasta `plugins/` são carregados sozinhos
+- 🎬 **Banner animado** linha a linha
 
 ---
 
 ## --{[Como usar]}--
 
-### Pré-requisitos
+Requisitos: Python 3.8+ (Linux, macOS ou Windows). Não há dependências externas.
 
-- Python 3.8+
-
-### --{Instalação}--
-
-```bash
+```
 git clone https://github.com/JpStar06/panese-terminal.git
 cd panese-terminal
-```
-
-> Não há dependências externas — o projeto usa apenas a biblioteca padrão do Python.
-
-### --{Executando}--
-
-```bash
 python main.py
 ```
 
----
+Na primeira execução, escolha **[2] Criar conta**. O username aceita 3 a 20 letras, números ou `_`, e a senha precisa de pelo menos 6 caracteres.
 
-## --{[Interagindo com a Aiko]}--
+### Comandos
 
-Após iniciar, você verá o banner e o painel de comandos. A partir daí, é só digitar:
+| Comando | O que faz |
+| --- | --- |
+| `/help [comando]` | lista os comandos ou detalha um deles |
+| `/modo <normal\|femboy\|tsundere>` | muda a personalidade |
+| `/color <cor>` | muda a cor das respostas |
+| `/horario` | mostra a hora atual |
+| `/ping` | teste rápido |
+| `/exit` | sai do programa |
 
-**Conversa normal:**
+### Exemplo
+
 ```
-Você: oi aiko
+você: oi aiko
 Panese: Oii! Como você tá? 💗
-```
 
-**Quando ela não entende:**
-```
-Você: qual meu filme favorito?
+você: qual meu filme favorito?
 Panese: Não entendi...
 Ensinar? (s/n): s
 Resposta: Interestelar
 Panese: Aprendi isso 💗
 ```
 
-**Comandos com barra:**
+---
+
+## --{[Estrutura]}--
+
 ```
-Você: /ajuda
+panese-terminal/
+├── main.py              # login, carga da memória e loop de conversa
+├── core/
+│   ├── bot.py           # comandos principais (color, help, modo, exit)
+│   ├── chat.py          # busca de respostas e entrada/saída da conversa
+│   ├── state.py         # estado da sessão (AikoState)
+│   └── ui.py            # painéis de comandos e de ajuda
+├── services/
+│   ├── auth.py          # contas, hash de senha e login
+│   ├── banner.py        # banners animados
+│   ├── emotions.py      # efeitos dos modos de personalidade
+│   ├── io.py            # print_lento e leitura com timeout
+│   ├── learning.py      # normalização, carga e aprendizado de respostas
+│   └── storage.py       # JSON atômico e caminhos de dados
+├── decorators/          # @comando e @aiko_responde
+├── plugins/             # um arquivo = um comando novo
+├── data/
+│   ├── aiko_dados.json  # respostas base (versionado)
+│   ├── users/           # contas (NÃO versionado)
+│   └── memoria/         # o que cada usuário ensinou (NÃO versionado)
+└── tests/               # testes com pytest
+```
+
+### Criando um plugin
+
+```python
+# plugins/dado.py
+import random
+from decorators.aiko import aiko_responde
+from decorators.commands import comando
+
+@comando("dado", "rola um dado", "Sorteia um número de 1 a 6")
+@aiko_responde()
+def dado(args, ctx=None, state=None):
+    return f"saiu {random.randint(1, 6)}!"
 ```
 
 ---
 
-## --{[Dados e Memória]}--
+## --{[Dados e privacidade]}--
 
-As respostas aprendidas ficam salvas em `data/aiko_dados.json`. Esse arquivo é carregado toda vez que o programa inicia, então a Aiko mantém memória entre sessões.
-
-```json
-{
-  "respostas": {
-    "qual meu filme favorito?": "Interestelar"
-  }
-}
-```
+- `data/aiko_dados.json`: respostas padrão. Use `{usuario}` para citar o nome de quem está logado.
+- `data/memoria/<usuario>.json`: o que cada usuário ensinou; é somado às respostas padrão ao entrar.
+- `data/users/<usuario>.json`: guarda só o hash da senha. Contas antigas em texto puro são convertidas no primeiro login.
+- Se um JSON estiver corrompido, ele é movido para `*.corrompido-<timestamp>` em vez de ser sobrescrito.
+- As pastas `users/` e `memoria/` estão no `.gitignore` — não envie senhas ao GitHub.
 
 ---
 
-## 🛠️ Arquitetura
+## --{[Testes]}--
 
-| Camada | Responsabilidade |
-|---|---|
-| `core/` | Lógica central: estado, chat, comandos e UI |
-| `services/` | Serviços de suporte: emoções, I/O, storage, aprendizado |
-| `decorators/` | Decoradores reutilizáveis |
-| `data/` | Persistência em JSON |
+```
+pip install -r requirements-dev.txt
+python -m pytest
+```
 
 ---
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir uma *issue* ou enviar um *pull request*.
-
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature: `git checkout -b minha-feature`
-3. Commit suas mudanças: `git commit -m 'feat: minha feature'`
-4. Push para a branch: `git push origin minha-feature`
-5. Abra um Pull Request
-
----
+1. Faça um fork e crie uma branch: `git checkout -b feat/minha-feature`
+2. Commit: `git commit -m "feat: minha feature"`
+3. Abra um Pull Request
 
 ## 📄 Licença
 
-Este projeto não possui licença definida ainda. Entre em contato com o autor para mais informações.
+Ainda não definida.
 
 ---
 
-<div align="center">
-  Feito com 💗 por <a href="https://github.com/JpStar06">JpStar06</a>
-</div>
+Feito com 💗 por [JpStar06](https://github.com/JpStar06)

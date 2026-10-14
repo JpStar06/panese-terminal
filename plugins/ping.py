@@ -1,5 +1,6 @@
-from decorators.commands import comando, registry
 from decorators.aiko import aiko_responde
+from decorators.commands import comando
+
 
 @comando("ping", "teste básico", "Responde com 'pong!' para verificar se o chatbot está funcionando")
 @aiko_responde()

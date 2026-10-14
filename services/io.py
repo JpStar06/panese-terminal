@@ -1,92 +1,73 @@
-# io.py
-# função de printar texto com efeito de digitação, criando uma experiência mais envolvente para o usuário. Ele também inclui um sistema de login simples, 
-# permitindo que os usuários criem contas e façam login para acessar o chatbot. O módulo utiliza arquivos JSON para armazenar as informações dos usuários, 
-# garantindo que os dados sejam persistentes entre as sessões. Além disso, ele inclui banners animados para tornar a interface mais atraente e acolhedora, 
-# melhorando a experiência geral do usuário ao interagir com o chatbot.
+"""Entrada e saída do terminal: efeito de digitação e leitura com timeout."""
 
 import os
+import select
+import sys
 import time
 
-from core.state import AikoState
-from core.memory import (load_json, save_usuario, get_user_path)
-from core.ui import (banner_login, banner_login_principal)
 
-# Este módulo é responsável por lidar com as operações de entrada e saída do chatbot, incluindo a exibição de mensagens com efeitos visuais, o gerenciamento de login e criação de contas, e a manipulação de arquivos JSON para armazenar os dados dos usuários. Ele fornece funções para imprimir texto com um efeito de digitação, criar banners animados para a interface do usuário, e gerenciar o processo de autenticação dos usuários. Este módulo é essencial para criar uma experiência de usuário mais envolvente e personalizada, permitindo que os usuários se sintam mais conectados ao chatbot e tenham uma interação mais fluida e agradável.
 def print_lento(texto, delay=0.02):
+    """Imprime com efeito de digitação (sem atraso se a saída não for um terminal)."""
+    if not sys.stdout.isatty():
+        delay = 0
     for linha in str(texto).split("\n"):
         for char in linha:
             print(char, end="", flush=True)
-            time.sleep(delay)
+            if delay:
+                time.sleep(delay)
         print()
 
 
-# Função para salvar os dados de um usuário, criando um arquivo JSON específico para cada usuário
-class login:
-
-    def principal_login():
-        banner_login_principal(0.2)
-
-        escolha = input("Escolha uma opção: ").strip()
-
-        if escolha == "1":
-            print_lento("Opção de Login selecionada 💗")
-            return login.login()
-
-        elif escolha == "2":
-            print_lento("Criar conta selecionado 💗")
-            return login.criar_conta()
-
-        elif escolha == "3":
-            print_lento("Saindo...")
-            exit()
-
-        else:
-            print_lento("Opção inválida.")
-            return False
+def _ler_bloqueante():
+    linha = sys.stdin.readline()
+    if linha == "":
+        raise EOFError
+    return linha.rstrip("\r\n")
 
 
-    def login():
-        banner_login(0.2)
+def _ler_windows(timeout):
+    import msvcrt
 
-        username = input("Username: ").strip()
-        password = input("Password: ").strip()
-
-        path = get_user_path(username)
-
-        usuarios = load_json(path)
-
-        if usuarios:
-
-            if usuarios["password"] == password:
-                print_lento(f"Bem-vindo {username}! 💗")
-                return True
-
+    limite = None if timeout is None else time.monotonic() + timeout
+    buf = []
+    while True:
+        if msvcrt.kbhit():
+            ch = msvcrt.getwch()
+            if ch in ("\r", "\n"):
+                print()
+                return "".join(buf)
+            if ch == "\x03":
+                raise KeyboardInterrupt
+            if ch == "\x1a":
+                raise EOFError
+            if ch == "\b":
+                if buf:
+                    buf.pop()
+                    print("\b \b", end="", flush=True)
+            elif ch in ("\x00", "\xe0"):
+                msvcrt.getwch()  # tecla especial (setas etc.): ignora
             else:
-                print_lento("Senha incorreta.")
-                return False
-
+                buf.append(ch)
+                print(ch, end="", flush=True)
         else:
-            print_lento("Usuário não encontrado.")
-            return False
+            if limite is not None and time.monotonic() >= limite:
+                return None
+            time.sleep(0.02)
 
 
-    def criar_conta():
-        username = input("Escolha um username: ").strip()
-        password = input("Escolha uma senha: ").strip()
+def ler_linha(prompt="", timeout=None):
+    """Lê uma linha do usuário.
 
-        path = get_user_path(username)
-
-        if os.path.exists(path):
-            print_lento("Username já existe.")
-            return False
-
-        save_usuario({
-            "username": username,
-            "password": password
-        })
-
-        print_lento("Conta criada com sucesso 💗")
-
-        time.sleep(1)
-
-        return login.principal_login()
+    Devolve None se o tempo acabar e levanta EOFError se a entrada fechar
+    (Ctrl+D / Ctrl+Z). Funciona em Linux, macOS e Windows.
+    """
+    print(prompt, end="", flush=True)
+    if os.name == "nt":
+        if sys.stdin.isatty():
+            return _ler_windows(timeout)
+        return _ler_bloqueante()  # sem terminal no Windows não há timeout
+    if timeout is not None:
+        pronto, _, _ = select.select([sys.stdin], [], [], timeout)
+        if not pronto:
+            return None
+    return _ler_bloqueante()

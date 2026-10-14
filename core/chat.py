@@ -1,78 +1,69 @@
-# chat.py
-# Sistema de processamento de conversa, responsável por interpretar a entrada do usuário e gerar uma resposta adequada com base na memória do chatbot. 
-# Ele utiliza técnicas de similaridade de texto para encontrar a melhor correspondência entre a pergunta do usuário e as perguntas armazenadas na 
-# memória, permitindo que o chatbot responda de forma mais natural e relevante. Além disso, ele inclui funções para obter a entrada do usuário com 
-# timeout e para imprimir a resposta com um efeito de digitação, tornando a interação mais fluida e envolvente.
+"""Interpretação das mensagens e saída das respostas."""
 
-
-import sys
-import time
 import random
-import select
 from difflib import SequenceMatcher
-from services.io import print_lento
-from core.state import AikoState
 
-ultimo_input = time.time()
+from services.io import ler_linha, print_lento
+from services.learning import normalizar
 
-# Função para escolher uma resposta aleatória se houver múltiplas opções
+LIMIAR_SIMILARIDADE = 0.8
+TAMANHO_MINIMO_FUZZY = 5  # padrões/textos menores só casam exato ou por palavra inteira
+
+
 def escolher_resposta(resp):
     if isinstance(resp, list):
-        return random.choice(resp)
+        return random.choice(resp) if resp else None
     return resp
 
-# Função para encontrar a resposta mais similar usando SequenceMatcher
-def encontrar_resposta(pergunta, respostas):
-    pergunta = pergunta.lower()
-    melhor = None
-    maior_sim = 0.0
 
-    for padrao in respostas:
-        sim = SequenceMatcher(None, pergunta, padrao).ratio()
-        if sim > maior_sim:
-            melhor = padrao
-            maior_sim = sim
+def encontrar_resposta(texto, respostas):
+    """Procura a melhor resposta: exata > parecida > contém (palavra inteira)."""
+    t = normalizar(texto)
+    if not t:
+        return None
 
-    if maior_sim > 0.6:  # aumentei um pouco o threshold
-        return escolher_resposta(respostas[melhor])
+    if t in respostas:
+        return escolher_resposta(respostas[t])
 
+    if len(t) >= TAMANHO_MINIMO_FUZZY:
+        melhor, maior = None, 0.0
+        for padrao in respostas:
+            if len(padrao) < TAMANHO_MINIMO_FUZZY:
+                continue
+            sim = SequenceMatcher(None, t, padrao).ratio()
+            if sim > maior:
+                melhor, maior = padrao, sim
+        if melhor is not None and maior >= LIMIAR_SIMILARIDADE:
+            return escolher_resposta(respostas[melhor])
+
+    candidatos = [p for p in respostas if f" {p} " in f" {t} "]
+    if candidatos:
+        return escolher_resposta(respostas[max(candidatos, key=len)])
     return None
 
-# Função para processar a conversa, tentando encontrar a melhor resposta com base na similaridade e em fallback por contém
+
 def processar_conversa(texto, state):
-    respostas = state.respostas
-
-    # 1. match por similaridade (mais preciso)
-    resp = encontrar_resposta(texto, respostas)
-    if resp:
-        return resp
-
-    # 2. fallback por contém (só se similaridade falhou)
-    for pergunta, resposta in respostas.items():
-        if pergunta in texto.lower():
-            return escolher_resposta(resposta)
-
-    # 3. fallback final
+    resposta = encontrar_resposta(texto, state.respostas)
+    if resposta:
+        return resposta.replace("{usuario}", state.usuario or "você")
     return None
 
-# Função para obter a entrada do usuário com timeout
+
 def obter_input(timeout=10, state=None):
-    print("você: ", end="", flush=True)
-    # Aguarda a resposta do usuário
-    pronto, _, _ = select.select([sys.stdin], [], [], timeout)
-    if pronto:
-        return sys.stdin.readline().strip()
-    # Se der timeout, primeiro pulamos a linha do "você: "
-    print() 
-    # Agora imprimimos o nome e a mensagem na mesma linha, sem o \n no começo
-    print(f"{state.cor_atual}Panese:\033[0m ", end="", flush=True)
-    print_lento("Parece que você está ausente... Vou ficar aqui esperando 💗\n")
+    """Lê a entrada. Devolve None se o tempo acabar; EOFError se a entrada fechar."""
+    entrada = ler_linha("você: ", timeout=timeout)
+    if entrada is not None:
+        return entrada.strip()
 
+    cor = state.cor_atual if state else ""
+    print()
+    print(f"{cor}Panese:\033[0m ", end="", flush=True)
+    print_lento("Parece que você está ausente... Vou ficar aqui esperando 💗\n")
     return None
 
-# Função para imprimir a resposta com efeito de digitação, aplicando emoçãos antes de imprimir
-def obter_ouput(texto, state):  # renomeado de obter_ouput
-    """Aplica emoção e imprime a resposta com efeito de digitação."""
-    final = state.aplicar_emocao(texto)  # ✅ CORRIGIDO: usa state, não AikoState
+
+def responder(texto, state):
+    """Aplica a emoção e imprime a resposta com efeito de digitação."""
+    final = state.aplicar_emocao(texto)
     print(f"{state.cor_atual}Panese:\033[0m ", end="")
     print_lento(final)
