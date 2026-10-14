@@ -12,7 +12,7 @@ from core.memory import load_json, save_json, save_usuario, carregar_dados, carr
 from core.ui import gerar_painel_comandos, banner_animado
 from services.io import login
 from services.io import print_lento
-
+from core.memory import getUserUsername
 import plugins
 import threading
 import os
@@ -26,7 +26,7 @@ class principal:
 
         # carregar memória
         dados = load_json(DATA_PATH)
-        usuario = login.usuario
+        usuario = getUserUsername()
         state.respostas = dados.get("respostas", {})
 
         # 🔥 Banner

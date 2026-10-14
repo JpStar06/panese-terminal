@@ -69,6 +69,13 @@ def carregar_usuario(username):
     path = get_user_path(username)
     return load_json(path)
 
+def getUserUsername():
+    user = get_user_path(os.listdir(DATA_USERS_DIR)[0].split(".")[0]) if os.listdir(DATA_USERS_DIR) else None
+    if user:
+        return user.split("/")[-1].split(".")[0]
+    return None
+
+
 # Função para carregar os dados gerais do chatbot, incluindo perguntas e respostas, retornando um dicionário com a estrutura esperada
 def carregar_dados():
     if not os.path.exists(DATA_PATH):
